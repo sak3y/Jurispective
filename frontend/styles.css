@@ -171,7 +171,7 @@ a:focus-visible {
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 270px;
-  gap: 28px;
+  gap: 36px;
   overflow: hidden;
 }
 
@@ -180,7 +180,8 @@ a:focus-visible {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
+  padding-right: 8px;
 }
 
 /* CASE NAVIGATION */
@@ -192,6 +193,12 @@ a:focus-visible {
   align-items: center;
   gap: 12px;
   margin-bottom: 18px;
+  padding-right: 5px;
+}
+
+.new-case-button {
+  flex-shrink: 0;
+  margin-right: 4px;
 }
 
 .section-kicker {
@@ -251,6 +258,8 @@ a:focus-visible {
   background: var(--coral);
   box-shadow: 3px 4px 0 var(--ink);
   font-size: 11px;
+  margin-right: 6px;
+  max-width: calc(100% - 6px);
 }
 
 .new-case-button span {
@@ -259,7 +268,7 @@ a:focus-visible {
 }
 
 .new-case-button:hover {
-  transform: rotate(-3deg) scale(1.025);
+  transform: rotate(-2deg);
   background: var(--yellow);
 }
 
@@ -403,6 +412,12 @@ a:focus-visible {
 
 .card-rule {
   background: var(--blue);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  gap: 0;
 }
 
 .card-remedy {
@@ -429,11 +444,15 @@ a:focus-visible {
 }
 
 .answer-text {
+  display: block;
+  width: 100%;
   margin: 0;
   padding: 0;
-  white-space: pre-wrap;
-  line-height: 1.65;
+  text-align: left !important;
+  white-space: pre-line;
   font: inherit;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
 }
 
 /* COMPOSER */
@@ -506,20 +525,9 @@ a:focus-visible {
     background-color 500ms ease;
 }
 
-.button-arrow {
-  display: inline-block;
-  margin-left: 13px;
-  font-size: 19px;
-  transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-
 .question-form button:hover:not(:disabled) {
   transform: rotate(-2deg);
   box-shadow: 4px 5px 0 var(--ink);
-}
-
-.question-form button:hover:not(:disabled) .button-arrow {
-  transform: translateX(4px);
 }
 
 .question-form button:active:not(:disabled) {
@@ -715,10 +723,6 @@ a:focus-visible {
     height: 39px;
   }
 
-  .status-local {
-    display: none;
-  }
-
   .status-pill {
     font-size: 9px;
     padding: 7px 9px;
@@ -835,11 +839,6 @@ a:focus-visible {
     min-width: 112px;
     padding: 8px 10px;
     font-size: 11px;
-  }
-
-  .button-arrow {
-    margin-left: 5px;
-    font-size: 16px;
   }
 
   .sources-list {
