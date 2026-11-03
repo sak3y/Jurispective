@@ -2,7 +2,16 @@
 
 A retrieval augmented generation service over UK criminal law. Acts are fetched from the legislation.gov.uk API as XML, chunked along the law's own structural boundaries, embedded locally, and served over HTTP so an LLM answers from the statute with a citation rather than from memory.
 
+
+## 🎥 Demo
+
+
+https://github.com/user-attachments/assets/3880ad4f-7515-4b8d-a127-65c949c4beb5
+
+
+
 ## Project layout
+
 
 ```text
 backend/          Python API, RAG pipeline, requirements and Dockerfile
