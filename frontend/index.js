@@ -1,4 +1,7 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL =
+  window.location.port === "8000"
+    ? window.location.origin
+    : "http://127.0.0.1:8000";
 
 const $ = (id) => document.getElementById(id);
 
@@ -23,11 +26,13 @@ const matters = [];
 let activeMatter = -1;
 let isLoading = false;
 
-// BACKEND STATUS
+// BACKEND HEALTH
 
 async function checkHealth() {
   try {
-    const response = await fetch(`${API_URL}/health`);
+    const response = await fetch(`${API_URL}/health`, {
+      cache: "no-store",
+    });
 
     if (!response.ok) {
       throw new Error("Backend unavailable");
@@ -35,18 +40,26 @@ async function checkHealth() {
 
     const data = await response.json();
 
-    corpusCount.textContent =
-      typeof data.chunks === "number"
-        ? `${data.chunks} legislation chunks indexed`
-        : "Legislation index connected";
-  } catch {
-    corpusCount.textContent = "Backend unavailable";
+    if (corpusCount) {
+      corpusCount.textContent =
+        typeof data.chunks === "number"
+          ? `${data.chunks} legislation chunks indexed`
+          : "Legislation index connected";
+    }
+  } catch (error) {
+    if (corpusCount) {
+      corpusCount.textContent = "Backend unavailable";
+    }
+
+    console.error("Health check failed:", error);
   }
 }
 
 // OLLAMA STATUS
 
 function setOllamaStatus(state, message) {
+  if (!ollamaBadge || !ollamaText) return;
+
   ollamaBadge.classList.remove(
     "status-online",
     "status-offline",
@@ -60,32 +73,38 @@ function setOllamaStatus(state, message) {
 async function checkOllamaStatus() {
   try {
     const response = await fetch(`${API_URL}/ollama-status`, {
-      signal: AbortSignal.timeout(4000),
       cache: "no-store",
     });
 
     if (!response.ok) {
-      throw new Error("Status endpoint unavailable");
+      throw new Error(`HTTP ${response.status}`);
     }
 
     const data = await response.json();
 
-    if (data.online && data.model_available) {
-      setOllamaStatus("online", "Ollama ready · llama3.1");
-    } else if (data.online) {
-      setOllamaStatus("offline", "Ollama online · model missing");
+    if (data.running === true) {
+      if (data.model_available === false) {
+        setOllamaStatus("offline", "Ollama online · model missing");
+      } else {
+        const model = data.model || "Ollama";
+        setOllamaStatus("online", `Ollama ready · ${model}`);
+      }
     } else {
       setOllamaStatus("offline", "Ollama offline");
     }
-  } catch {
+  } catch (error) {
     setOllamaStatus("offline", "Ollama status unavailable");
+
+    console.error("Ollama status check failed:", error);
   }
 }
 
-// SAFE LEGISLATION URL
+// SAFE LEGISLATION LINKS
 
 function getLegislationUrl(source) {
-  if (typeof source.uri !== "string") return null;
+  if (!source || typeof source.uri !== "string") {
+    return null;
+  }
 
   try {
     const url = new URL(source.uri);
@@ -96,26 +115,39 @@ function getLegislationUrl(source) {
       return url;
     }
   } catch {
-    // Invalid source URL.
+    return null;
   }
 
   return null;
 }
 
-// SOURCE CARDS
+// FILTER SOURCES
+
+function filterSources(sources) {
+  if (!Array.isArray(sources)) return [];
+
+  return sources.filter(
+    (source) =>
+      source &&
+      typeof source.text === "string" &&
+      source.text.trim().length > 0,
+  );
+}
+
+// RECEIPTS
 
 function renderSources(sources) {
+  if (!sourcesList) return;
+
   sourcesList.replaceChildren();
 
-  if (!Array.isArray(sources) || sources.length === 0) {
-    const message = document.createElement("p");
-    message.className = "empty-message";
-    message.textContent = "No legislation sources returned.";
-    sourcesList.appendChild(message);
+  const validSources = filterSources(sources);
+
+  if (validSources.length === 0) {
     return;
   }
 
-  sources.forEach((source, index) => {
+  validSources.forEach((source, index) => {
     const card = document.createElement("article");
     card.className = "source-card";
 
@@ -141,22 +173,23 @@ function renderSources(sources) {
 
     const excerpt = document.createElement("div");
     excerpt.className = "source-excerpt";
-    excerpt.textContent =
-      typeof source.text === "string" ? source.text : "No passage provided.";
+    excerpt.textContent = source.text;
 
     card.append(number, title, excerpt);
 
     if (url) {
       const link = document.createElement("a");
+
       link.className = "source-link";
       link.href = url.href;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
-      link.textContent = "See it on legislation.gov.uk →";
+      link.textContent = "See it on legislation.gov.uk";
 
       card.appendChild(link);
     } else {
       const unavailable = document.createElement("p");
+
       unavailable.className = "source-unavailable";
       unavailable.textContent = "Direct legislation link unavailable.";
 
@@ -167,29 +200,46 @@ function renderSources(sources) {
   });
 }
 
-// DISPLAY A CASE
+// SHOW A CASE
 
 function showMatter(matter) {
-  displayQuestion.textContent = matter.query;
-  findingTitle.textContent = "Here's what the wig found.";
+  const sources = filterSources(matter.sources);
+  const count = sources.length;
 
-  answerContent.textContent = matter.answer || "No answer was returned.";
+  if (displayQuestion) {
+    displayQuestion.textContent = matter.query;
+  }
 
-  const count = matter.sources.length;
+  if (findingTitle) {
+    findingTitle.textContent = "Here's what the wig found.";
+  }
 
-  questionMeta.textContent = `${count} ${count === 1 ? "law" : "laws"} fetched`;
+  if (answerContent) {
+    answerContent.textContent = matter.answer || "No answer was returned.";
+  }
 
-  sourcesSummary.textContent =
-    count > 0
-      ? `${count} ${count === 1 ? "source" : "sources"} available in Receipts.`
-      : "No supporting sources were returned.";
+  if (questionMeta) {
+    questionMeta.textContent =
+      count > 0
+        ? `${count} ${count === 1 ? "law" : "laws"} fetched`
+        : "No sources found";
+  }
 
-  renderSources(matter.sources);
+  if (sourcesSummary) {
+    sourcesSummary.textContent =
+      count > 0
+        ? `${count} ${count === 1 ? "source" : "sources"} available in Receipts.`
+        : "No supporting legislation found.";
+  }
+
+  renderSources(sources);
 }
 
 // CASE HISTORY
 
 function renderMatters() {
+  if (!matterList) return;
+
   matterList.replaceChildren();
 
   matters.forEach((matter, index) => {
@@ -216,106 +266,169 @@ function renderMatters() {
   });
 }
 
-// QUESTION SUBMISSION
+// SUBMIT QUESTION
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
+if (form && input && submitButton) {
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-  if (isLoading) return;
+    if (isLoading) return;
 
-  const question = input.value.trim();
-  if (!question) return;
+    const question = input.value.trim();
 
-  isLoading = true;
-  submitButton.disabled = true;
-  submitLabel.textContent = "Thinking...";
+    if (!question) return;
 
-  requestStatus.textContent = "Searching legislation...";
-  displayQuestion.textContent = question;
-  findingTitle.textContent = "The wig is thinking...";
-  answerContent.textContent = "Retrieving relevant laws...";
+    isLoading = true;
+    submitButton.disabled = true;
 
-  sourcesSummary.textContent = "Waiting for retrieved sources.";
+    if (submitLabel) {
+      submitLabel.textContent = "Thinking...";
+    }
 
-  sourcesList.textContent = "Searching...";
+    if (requestStatus) {
+      requestStatus.textContent = "Searching legislation...";
+    }
 
-  try {
-    const url = new URL(`${API_URL}/ask`);
-    url.searchParams.set("query", question);
+    if (displayQuestion) {
+      displayQuestion.textContent = question;
+    }
 
-    const response = await fetch(url);
+    if (findingTitle) {
+      findingTitle.textContent = "The wig is thinking...";
+    }
 
-    if (!response.ok) {
-      if (response.status === 429) {
-        throw new Error("Too many requests. Try again in a minute.");
+    if (answerContent) {
+      answerContent.textContent = "Retrieving relevant laws...";
+    }
+
+    if (sourcesSummary) {
+      sourcesSummary.textContent = "";
+    }
+
+    if (sourcesList) {
+      sourcesList.replaceChildren();
+    }
+
+    try {
+      const url = new URL(`${API_URL}/ask`);
+      url.searchParams.set("query", question);
+
+      const response = await fetch(url.toString());
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error("Too many requests. Try again in a minute.");
+        }
+
+        throw new Error(`Backend returned HTTP ${response.status}.`);
       }
 
-      throw new Error(`Backend returned HTTP ${response.status}.`);
+      const data = await response.json();
+
+      if (typeof data.answer !== "string") {
+        throw new Error("The backend returned an invalid answer.");
+      }
+
+      const sources = filterSources(data.sources);
+
+      const matter = {
+        query: question,
+        answer: data.answer,
+        sources: data.answered === false ? [] : sources,
+      };
+
+      matters.push(matter);
+      activeMatter = matters.length - 1;
+
+      showMatter(matter);
+      renderMatters();
+
+      input.value = "";
+
+      if (requestStatus) {
+        requestStatus.textContent = "Research complete.";
+      }
+    } catch (error) {
+      if (findingTitle) {
+        findingTitle.textContent = "Something went wrong.";
+      }
+
+      if (answerContent) {
+        answerContent.textContent = (
+          matter.answer || "No answer was returned."
+        ).trim();
+      }
+
+      if (sourcesSummary) {
+        sourcesSummary.textContent = "";
+      }
+
+      if (sourcesList) {
+        sourcesList.replaceChildren();
+      }
+
+      if (requestStatus) {
+        requestStatus.textContent = "Check your backend connection.";
+      }
+
+      console.error("Question request failed:", error);
+    } finally {
+      isLoading = false;
+      submitButton.disabled = false;
+
+      if (submitLabel) {
+        submitLabel.textContent = "Ask the wig";
+      }
     }
-
-    const data = await response.json();
-
-    if (typeof data.answer !== "string") {
-      throw new Error("The backend returned an invalid answer.");
-    }
-
-    const matter = {
-      query: question,
-      answer: data.answer,
-      sources: Array.isArray(data.sources) ? data.sources : [],
-    };
-
-    matters.push(matter);
-    activeMatter = matters.length - 1;
-
-    showMatter(matter);
-    renderMatters();
-
-    input.value = "";
-    requestStatus.textContent = "Research complete.";
-  } catch (error) {
-    findingTitle.textContent = "Something went wrong.";
-    answerContent.textContent = error.message;
-
-    sourcesSummary.textContent = "No results available.";
-
-    sourcesList.textContent = "Sources could not be retrieved.";
-
-    requestStatus.textContent = "Check your backend connection.";
-  } finally {
-    isLoading = false;
-    submitButton.disabled = false;
-    submitLabel.textContent = "Ask the wig";
-  }
-});
+  });
+}
 
 // NEW CASE
 
-newMatterButton.addEventListener("click", () => {
-  if (isLoading) return;
+if (newMatterButton) {
+  newMatterButton.addEventListener("click", () => {
+    if (isLoading) return;
 
-  activeMatter = -1;
+    activeMatter = -1;
 
-  displayQuestion.textContent = "Ask the wig a question about UK law.";
+    if (displayQuestion) {
+      displayQuestion.textContent = "Ask the wig a question about UK law.";
+    }
 
-  questionMeta.textContent = "Ask about UK legislation";
+    if (questionMeta) {
+      questionMeta.textContent = "Ask about UK legislation";
+    }
 
-  findingTitle.textContent = "Let's find some wiggle room.";
+    if (findingTitle) {
+      findingTitle.textContent = "Let's find some wiggle room.";
+    }
 
-  answerContent.textContent =
-    "Ask a question and the wig will search the legislation.";
+    if (answerContent) {
+      answerContent.textContent =
+        "Ask a question and the wig will search the legislation.";
+    }
 
-  sourcesSummary.textContent =
-    "Supporting legislation will appear in Receipts.";
+    if (sourcesSummary) {
+      sourcesSummary.textContent =
+        "Supporting legislation will appear in Receipts.";
+    }
 
-  sourcesList.textContent = "Retrieved legislation will appear here.";
+    if (sourcesList) {
+      sourcesList.replaceChildren();
+    }
 
-  requestStatus.textContent = "";
-  input.value = "";
+    if (requestStatus) {
+      requestStatus.textContent = "";
+    }
 
-  renderMatters();
-  input.focus();
-});
+    if (input) {
+      input.value = "";
+      input.focus();
+    }
+
+    renderMatters();
+  });
+}
 
 // INITIALISE
 
