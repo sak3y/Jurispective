@@ -1,3 +1,6 @@
+import os
+import httpx
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -28,6 +31,46 @@ def health():
     return {
         "chunks": store._collection.count()
     }
+
+@app.get("/ollama-status")
+async def ollama_status():
+    base_url = os.getenv(
+        "OLLAMA_BASE_URL",
+        "http://127.0.0.1:11434"
+    )
+    model = os.getenv("OLLAMA_MODEL", "llama3.2")
+
+    try:
+        async with httpx.AsyncClient(timeout=3.0) as client:
+            response = await client.get(f"{base_url}/api/tags")
+            response.raise_for_status()
+
+        models = [
+            item["name"]
+            for item in response.json().get("models", [])
+        ]
+
+        model_available = any(
+            name == model
+            or name.split(":")[0] == model.split(":")[0]
+            for name in models
+        )
+
+        return {
+            "running": True,
+            "model": model,
+            "model_available": model_available,
+            "installed_models": models
+        }
+
+    except (httpx.HTTPError, ValueError, KeyError):
+        return {
+            "running": False,
+            "model": model,
+            "model_available": False,
+            "installed_models": []
+        }
+
 
 @app.get("/search")
 def search(query: str, k_neighbours: int = 4):
