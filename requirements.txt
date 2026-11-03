@@ -1,0 +1,20 @@
+# pipeline
+langchain
+langchain-core
+langchain-chroma
+langchain-ollama
+requests
+python-dotenv
+beautifulsoup4
+
+# API
+fastapi
+uvicorn
+slowapi
+
+# optional: hosted generation via LLM_PROVIDER=anthropic
+# langchain-anthropic
+
+# dev
+pytest
+ipykernel
