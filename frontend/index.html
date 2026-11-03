@@ -3,48 +3,139 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Closer | UK legislation</title>
+    <title>Wiggle Room | UK Legislation RAG Assistant</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="index.js" defer></script>
   </head>
   <body>
-    <header>
-      <span class="brand">CLOSER</span>
-      <span>UK LEGISLATION COUNSEL</span>
-    </header>
-    <main>
-      <section>
-        <p class="label">LOCAL LEGAL RESEARCH</p>
-        <h1>A clearer view<br />of the law.</h1>
-        <p class="intro">
-          Ask a question. Find answers in UK legislation.
-        </p>
-        <form id="question-form">
-          <label for="question">YOUR QUESTION</label>
-          <textarea
-            id="question"
-            rows="3"
-            placeholder="What counts as burglary?"
-            required
-          ></textarea>
-          <button type="submit">Ask question &rarr;</button>
-        </form>
-        <p id="status" role="status">
-          Requires the API, Ollama and an indexed vector store.
-        </p>
-        <section aria-labelledby="finding-title">
-          <h2 id="finding-title">The finding</h2>
-          <p id="answer">Your answer will appear here.</p>
-        </section>
-        <p class="disclaimer">
-          AI-generated legal information, not legal advice. Check the original
-          legislation.
-        </p>
-      </section>
-      <aside aria-labelledby="sources-title">
-        <h2 id="sources-title">Authorities</h2>
-        <div id="sources">Retrieved passages will appear here.</div>
-      </aside>
-    </main>
+    <div class="app-shell">
+      <header class="site-header">
+        <div class="brand">
+          <div class="brand-icon" aria-hidden="true">⚖</div>
+          <div class="brand-copy">
+            <strong>Wiggle Room</strong>
+            <span>UK law, explained by a wig.</span>
+          </div>
+        </div>
+
+        <div class="header-status">
+          <span
+            id="ollama-status"
+            class="status-pill status-checking"
+            role="status"
+          >
+            <span class="status-dot"></span>
+            <span id="ollama-status-text">Checking Ollama...</span>
+          </span>
+          <span class="status-pill status-local">Local RAG</span>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <main class="main-column">
+          <nav class="case-navigation" aria-label="Past cases">
+            <span class="section-kicker">PAST CASES</span>
+            <div id="matter-list" class="case-list"></div>
+            <button id="new-matter" class="new-case-button" type="button">
+              <span aria-hidden="true">+</span> New case
+            </button>
+          </nav>
+
+          <section class="question-section">
+            <span class="floating-label question-label"> You asked </span>
+            <div class="question-bubble">
+              <h1 id="display-question">
+                Ask the wig a question about UK law.
+              </h1>
+            </div>
+            <div class="question-metadata">
+              <span id="question-meta"> Ask about UK legislation </span>
+            </div>
+          </section>
+
+          <section class="verdict-panel">
+            <span class="verdict-sticker">VERDICT</span>
+
+            <div class="verdict-heading">
+              <span class="floating-label wig-label"> The wig says </span>
+              <h2 id="finding-title">Let's find some wiggle room.</h2>
+            </div>
+
+            <div class="verdict-body">
+              <article class="answer-card card-rule">
+                <span class="card-tag">1 · The answer</span>
+                <div id="answer-content" class="answer-text">
+                  Ask a question and the wig will search the legislation for an
+                  answer.
+                </div>
+              </article>
+
+              <article class="answer-card card-remedy">
+                <span class="card-tag">2 · The receipts</span>
+                <p id="answer-sources-summary">
+                  Supporting legislation will appear in the Receipts panel.
+                </p>
+              </article>
+
+              <article class="answer-card card-fineprint">
+                <span class="card-tag">3 · The fine print</span>
+                <p>
+                  Check the jurisdiction, amendments and version in force before
+                  relying on any provision.
+                </p>
+              </article>
+            </div>
+          </section>
+
+          <section class="composer-section">
+            <label for="question-input" class="composer-title">
+              Your turn. Ask the wig.
+            </label>
+
+            <form id="question-form" class="question-form">
+              <input
+                id="question-input"
+                type="text"
+                placeholder="State the facts. Skip the saga."
+                autocomplete="off"
+                enterkeyhint="send"
+                required
+              />
+
+              <button id="submit-button" type="submit">
+                <span id="submit-label">Ask the wig</span>
+                <span class="button-arrow" aria-hidden="true">→</span>
+              </button>
+            </form>
+
+            <p
+              id="request-status"
+              class="request-status"
+              role="status"
+              aria-live="polite"
+            ></p>
+
+            <p class="legal-disclaimer">
+              Not legal advice. The wig is not a solicitor.
+            </p>
+          </section>
+        </main>
+
+        <aside class="receipts-column">
+          <div class="receipts-header">
+            <h2>Receipts</h2>
+            <p>Where the wig got it from.</p>
+          </div>
+
+          <div id="sources-list" class="sources-list">
+            <p class="empty-message">Retrieved legislation will appear here.</p>
+          </div>
+
+          <p id="corpus-count" class="corpus-info">
+            Checking legislation index...
+          </p>
+        </aside>
+      </div>
+    </div>
   </body>
 </html>
