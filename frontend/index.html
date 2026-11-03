@@ -17,20 +17,13 @@
             <span>UK law, explained by a wig.</span>
           </div>
         </div>
-
         <div class="header-status">
-          <span
-            id="ollama-status"
-            class="status-pill status-checking"
-            role="status"
-          >
+          <span id="ollama-status" class="status-pill status-checking" role="status">
             <span class="status-dot"></span>
             <span id="ollama-status-text">Checking Ollama...</span>
           </span>
-          <span class="status-pill status-local">Local RAG</span>
         </div>
       </header>
-
       <div class="workspace">
         <main class="main-column">
           <nav class="case-navigation" aria-label="Past cases">
@@ -40,100 +33,57 @@
               <span aria-hidden="true">+</span> New case
             </button>
           </nav>
-
           <section class="question-section">
-            <span class="floating-label question-label"> You asked </span>
+            <span class="floating-label question-label">You asked</span>
             <div class="question-bubble">
-              <h1 id="display-question">
-                Ask the wig a question about UK law.
-              </h1>
+              <h1 id="display-question">Ask the wig a question about UK law.</h1>
             </div>
             <div class="question-metadata">
-              <span id="question-meta"> Ask about UK legislation </span>
+              <span id="question-meta">Ask about UK legislation</span>
             </div>
           </section>
-
           <section class="verdict-panel">
             <span class="verdict-sticker">VERDICT</span>
-
             <div class="verdict-heading">
-              <span class="floating-label wig-label"> The wig says </span>
+              <span class="floating-label wig-label">The wig says</span>
               <h2 id="finding-title">Let's find some wiggle room.</h2>
             </div>
-
             <div class="verdict-body">
               <article class="answer-card card-rule">
                 <span class="card-tag">1 · The answer</span>
                 <div id="answer-content" class="answer-text">
-                  Ask a question and the wig will search the legislation for an
-                  answer.
+                  Ask a question and the wig will search the legislation for an answer.
                 </div>
               </article>
-
               <article class="answer-card card-remedy">
                 <span class="card-tag">2 · The receipts</span>
-                <p id="answer-sources-summary">
-                  Supporting legislation will appear in the Receipts panel.
-                </p>
+                <p id="answer-sources-summary">Supporting legislation will appear in the Receipts panel.</p>
               </article>
-
               <article class="answer-card card-fineprint">
                 <span class="card-tag">3 · The fine print</span>
-                <p>
-                  Check the jurisdiction, amendments and version in force before
-                  relying on any provision.
-                </p>
+                <p>Check the jurisdiction, amendments and version in force before relying on any provision.</p>
               </article>
             </div>
           </section>
-
           <section class="composer-section">
-            <label for="question-input" class="composer-title">
-              Your turn. Ask the wig.
-            </label>
-
+            <label for="question-input" class="composer-title">Your turn. Ask the wig.</label>
             <form id="question-form" class="question-form">
-              <input
-                id="question-input"
-                type="text"
-                placeholder="State the facts. Skip the saga."
-                autocomplete="off"
-                enterkeyhint="send"
-                required
-              />
-
+              <input id="question-input" type="text" placeholder="State the facts. Skip the saga." autocomplete="off" enterkeyhint="send" required />
               <button id="submit-button" type="submit">
                 <span id="submit-label">Ask the wig</span>
-                <span class="button-arrow" aria-hidden="true">→</span>
               </button>
             </form>
-
-            <p
-              id="request-status"
-              class="request-status"
-              role="status"
-              aria-live="polite"
-            ></p>
-
-            <p class="legal-disclaimer">
-              Not legal advice. The wig is not a solicitor.
-            </p>
+            <p id="request-status" class="request-status" role="status" aria-live="polite"></p>
+            <p class="legal-disclaimer">Not legal advice. The wig is not a solicitor.</p>
           </section>
         </main>
-
         <aside class="receipts-column">
           <div class="receipts-header">
             <h2>Receipts</h2>
             <p>Where the wig got it from.</p>
           </div>
-
-          <div id="sources-list" class="sources-list">
-            <p class="empty-message">Retrieved legislation will appear here.</p>
-          </div>
-
-          <p id="corpus-count" class="corpus-info">
-            Checking legislation index...
-          </p>
+          <div id="sources-list" class="sources-list"></div>
+          <p id="corpus-count" class="corpus-info">Checking legislation index...</p>
         </aside>
       </div>
     </div>
