@@ -7,10 +7,8 @@ __pycache__
 **/__pycache__
 chroma_db
 
-
 .git
 
 tests
-backend/tests
 
 *.ipynb
