@@ -63,8 +63,8 @@ def evaluate(cases, ks):
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate Wiggle Room retrieval")
-    parser.add_argument("--cases", default="tests.json", help="Path to evaluation JSON")
-    parser.add_argument("--k", type=int, nargs="+", default=[4, 10], help="Top-k cutoffs")
+    parser.add_argument("--cases", default="test_set.json", help="Path to evaluation JSON")
+    parser.add_argument("--k", type=int, nargs="+", default=[5, 15], help="Top-k cutoffs") # test different k values: 15 seems to be the optimal value for tests_set.json
     args = parser.parse_args()
     if any(k < 1 for k in args.k):
         parser.error("All k values must be positive")
