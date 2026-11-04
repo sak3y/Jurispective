@@ -168,5 +168,11 @@
     "question": "What is a waffle?",
     "expected": "Waffle is not in the corpus",
     "note": "Shouldn't look insde the corpus"
+  },
+
+  {
+    "question": "If I borrow my friend's car without permission but intend to return it, have I committed theft?",
+    "expected": "http\\://www\\.legislation.gov.uk/ukpga/1968/60/section/12",
+    "note": "Theft Act s.12: taking a conveyance without consent. Section 6 is also relevant to whether temporary borrowing amounts to an intention to permanently deprive."
   }
 ]

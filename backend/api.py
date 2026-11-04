@@ -1,15 +1,19 @@
 import os
-import httpx
+from pathlib import Path
 
+import httpx
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from pathlib import Path
 from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 from backend import rag
+
+ROOT = Path(__file__).resolve().parent.parent
+load_dotenv(ROOT / ".env")
 
 app = FastAPI()
 app.add_middleware(
@@ -26,83 +30,60 @@ store = rag.get_store()
 
 
 @app.get("/health")
-# returns chunks -> check api works
 def health():
-    return {
-        "chunks": store._collection.count()
-    }
+    return {"chunks": store._collection.count()}
+
 
 @app.get("/ollama-status")
 async def ollama_status():
-    base_url = os.getenv(
-        "OLLAMA_BASE_URL",
-        "http://127.0.0.1:11434"
-    )
+    base_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
     model = os.getenv("OLLAMA_MODEL", "llama3.2")
-
     try:
         async with httpx.AsyncClient(timeout=3.0) as client:
             response = await client.get(f"{base_url}/api/tags")
             response.raise_for_status()
-
-        models = [
-            item["name"]
-            for item in response.json().get("models", [])
-        ]
-
+        models = [item["name"] for item in response.json().get("models", [])]
         model_available = any(
-            name == model
-            or name.split(":")[0] == model.split(":")[0]
+            name == model or name.split(":")[0] == model.split(":")[0]
             for name in models
         )
-
         return {
             "running": True,
             "model": model,
             "model_available": model_available,
-            "installed_models": models
+            "installed_models": models,
         }
-
-    except (httpx.HTTPError, ValueError, KeyError):
+    except (httpx.HTTPError, ValueError, KeyError, TypeError):
         return {
             "running": False,
             "model": model,
             "model_available": False,
-            "installed_models": []
+            "installed_models": [],
         }
 
-
+k = 10 
 @app.get("/search")
-def search(query: str, k_neighbours: int = 4):
-    # find the source within the vector store
+def search(query: str, k_neighbours: int = k):
     hits = rag.retrieve(store, query, k_neighbours)
-    res = []
-    for doc, score in hits:
-        res.append({
-            "text": doc.page_content,
-            "uri": doc.metadata["uri"],
-            "score": float(score)
-        })
-    return {
-        "query": query,
-        "res": res
-    }
+    res = [
+        {"text": doc.page_content, "uri": doc.metadata["uri"], "score": float(score)}
+        for doc, score in hits
+    ]
+    return {"query": query, "res": res}
 
 
 @app.get("/ask")
 @limiter.limit("3/minute")
-def ask(request: Request, query: str, k_neighbours: int = 4):
-    # calls rag.ask which send the query and returns an output after llm has processed
+def ask(request: Request, query: str, k_neighbours: int = k):
     answer, hits = rag.ask(store, query, k_neighbours)
     return {
         "query": query,
         "answer": answer,
         "sources": [
-            {"text": d.page_content, "uri": d.metadata["uri"], "score": float(s)}
-            for d, s in hits
+            {"text": doc.page_content, "uri": doc.metadata["uri"], "score": float(score)}
+            for doc, score in hits
         ],
     }
 
 
-# Serve the frontend from the API so requests use the same address and port.
-app.mount("/", StaticFiles(directory=Path(__file__).resolve().parent.parent / "frontend", html=True), name="frontend")
+app.mount("/", StaticFiles(directory=ROOT / "frontend", html=True), name="frontend")
