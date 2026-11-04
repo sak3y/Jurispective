@@ -4,6 +4,12 @@ A Retrieval-Augmented Generation (RAG) application that answers questions about 
 
 Instead of relying on the knowledge LLM's obtained during training, the application retrieves relevant legislation and uses it to generate answers with source references.
 
+## 🎥 Demo
+
+
+https://github.com/user-attachments/assets/694e8476-e378-496b-b012-c6b4289b630a
+
+
 ## Tech Stack
 
 - **Backend:** Python, FastAPI, LangChain
