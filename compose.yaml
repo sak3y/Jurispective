@@ -9,7 +9,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: backend/dockerfile
+      dockerfile: bdockerfile
     ports:
       - "8000:8000"
     environment:
