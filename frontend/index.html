@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Wiggle Room | UK Legislation RAG Assistant</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="stylesheet" href="styles.css" />
     <script src="index.js" defer></script>
   </head>
@@ -18,7 +19,11 @@
           </div>
         </div>
         <div class="header-status">
-          <span id="ollama-status" class="status-pill status-checking" role="status">
+          <span
+            id="ollama-status"
+            class="status-pill status-checking"
+            role="status"
+          >
             <span class="status-dot"></span>
             <span id="ollama-status-text">Checking Ollama...</span>
           </span>
@@ -36,7 +41,9 @@
           <section class="question-section">
             <span class="floating-label question-label">You asked</span>
             <div class="question-bubble">
-              <h1 id="display-question">Ask the wig a question about UK law.</h1>
+              <h1 id="display-question">
+                Ask the wig a question about UK law.
+              </h1>
             </div>
             <div class="question-metadata">
               <span id="question-meta">Ask about UK legislation</span>
@@ -52,29 +59,51 @@
               <article class="answer-card card-rule">
                 <span class="card-tag">1 · The answer</span>
                 <div id="answer-content" class="answer-text">
-                  Ask a question and the wig will search the legislation for an answer.
+                  Ask a question and the wig will search the legislation for an
+                  answer.
                 </div>
               </article>
               <article class="answer-card card-remedy">
                 <span class="card-tag">2 · The receipts</span>
-                <p id="answer-sources-summary">Supporting legislation will appear in the Receipts panel.</p>
+                <p id="answer-sources-summary">
+                  Supporting legislation will appear in the Receipts panel.
+                </p>
               </article>
               <article class="answer-card card-fineprint">
                 <span class="card-tag">3 · The fine print</span>
-                <p>Check the jurisdiction, amendments and version in force before relying on any provision.</p>
+                <p>
+                  Check the jurisdiction, amendments and version in force before
+                  relying on any provision.
+                </p>
               </article>
             </div>
           </section>
           <section class="composer-section">
-            <label for="question-input" class="composer-title">Your turn. Ask the wig.</label>
+            <label for="question-input" class="composer-title"
+              >Your turn. Ask the wig.</label
+            >
             <form id="question-form" class="question-form">
-              <input id="question-input" type="text" placeholder="State the facts. Skip the saga." autocomplete="off" enterkeyhint="send" required />
+              <input
+                id="question-input"
+                type="text"
+                placeholder="State the facts. Skip the saga."
+                autocomplete="off"
+                enterkeyhint="send"
+                required
+              />
               <button id="submit-button" type="submit">
                 <span id="submit-label">Ask the wig</span>
               </button>
             </form>
-            <p id="request-status" class="request-status" role="status" aria-live="polite"></p>
-            <p class="legal-disclaimer">Not legal advice. The wig is not a solicitor.</p>
+            <p
+              id="request-status"
+              class="request-status"
+              role="status"
+              aria-live="polite"
+            ></p>
+            <p class="legal-disclaimer">
+              Not legal advice. The wig is not a solicitor.
+            </p>
           </section>
         </main>
         <aside class="receipts-column">
@@ -83,7 +112,9 @@
             <p>Where the wig got it from.</p>
           </div>
           <div id="sources-list" class="sources-list"></div>
-          <p id="corpus-count" class="corpus-info">Checking legislation index...</p>
+          <p id="corpus-count" class="corpus-info">
+            Checking legislation index...
+          </p>
         </aside>
       </div>
     </div>
