@@ -1,7 +1,7 @@
 """Evaluate retrieval using a JSON list of {question, expected, note} cases.
 
 Run from the project root:
-    python test.py --cases tests.json --k 4 10
+    python -m tests.test_rag --cases tests/test_set.json --k 5 15
 
 The 'expected' field is a regular expression matched against a retrieved URI.
 A case passes if ANY of the top-k URIs matches. This tests retrieval, not LLM accuracy.
@@ -60,19 +60,32 @@ def evaluate(cases, ks):
         count = totals[k]
         print(f"  R@{k}: {count}/{evaluated} = {count / evaluated:.1%}" if evaluated else f"  R@{k}: no cases")
 
+    return totals[max_k] / evaluated if evaluated else 0
+
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate Wiggle Room retrieval")
-    parser.add_argument("--cases", default="test_set.json", help="Path to evaluation JSON")
-    parser.add_argument("--k", type=int, nargs="+", default=[5, 15], help="Top-k cutoffs") # test different k values: 15 seems to be the optimal value for tests_set.json
+    parser.add_argument("--cases", default=str(Path(__file__).resolve().parent / "test_set.json"), help="Path to evaluation JSON")
+    parser.add_argument("--k", type=int, nargs="+", default=[5, 15], help="Top-k cutoffs")
+    parser.add_argument("--min-recall", type=float, default=0.70, help="Minimum required recall at highest k")
     args = parser.parse_args()
+
     if any(k < 1 for k in args.k):
         parser.error("All k values must be positive")
+    if not 0 <= args.min_recall <= 1:
+        parser.error("--min-recall must be between 0 and 1")
+
     try:
         cases = load_cases(args.cases)
     except (OSError, json.JSONDecodeError, ValueError, re.error) as exc:
         parser.error(f"Cannot load cases: {exc}")
-    evaluate(cases, sorted(set(args.k)))
+
+    recall = evaluate(cases, sorted(set(args.k)))
+    if recall < args.min_recall:
+        print(f"\nFAIL: Recall {recall:.1%} is below {args.min_recall:.0%}")
+        raise SystemExit(1)
+
+    print(f"\nPASS: Recall {recall:.1%} meets {args.min_recall:.0%} threshold")
 
 
 if __name__ == "__main__":
