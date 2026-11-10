@@ -1,4 +1,4 @@
-# Wiggle Room
+# Statyra
 
 A Retrieval-Augmented Generation (RAG) application that answers questions about UK criminal law using legislation from [legislation.gov.uk](https://www.legislation.gov.uk/).
 
