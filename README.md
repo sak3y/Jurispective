@@ -1,4 +1,4 @@
-# Wiggle Room
+# Statyra
 
 A Retrieval-Augmented Generation (RAG) application that answers questions about UK criminal law using legislation from [legislation.gov.uk](https://www.legislation.gov.uk/).
 
@@ -7,7 +7,7 @@ Instead of relying on the knowledge LLM's obtained during training, the applicat
 ## 🎥 Demo
 
 
-https://github.com/user-attachments/assets/694e8476-e378-496b-b012-c6b4289b630a
+https://github.com/user-attachments/assets/167a3588-deb3-420f-b6d7-8f4026de16dd
 
 
 ## Tech Stack
@@ -74,11 +74,30 @@ docker compose exec ollama ollama pull llama3.2
 docker compose exec api python -m backend.rag
 ```
 
-## Retrieval Performance
+## Retrieval Evaluation
 
-The retrieval pipeline currently achieves **22/34 (64.7%)** on a small evaluation set of questions written in everyday English.
+Statyra includes a self-made evaluation JSON file that measures how effectively the retrieval pipeline identifies relevant legislative provisions for natural-language questions.
 
-The questions test whether the application can match natural language queries to relevant legal provisions.
+The evaluation dataset contains **34 questions**, each associated with expected legislative references.
+
+### Evaluation Results
+
+| Metric | Result |
+|--------|--------|
+| Evaluation questions | 34 |
+| Recall@15 | 79.4% |
+| Minimum CI threshold | 70% |
+| Indexed legislative subsections | 568 |
+
+Recall@15 measures the proportion of evaluation questions for which the correct legislative provision appears within the top 15 retrieved results.
+
+The evaluation can be run using:
+
+```bash
+python -m tests.test_rag --k 5 15 --min-recall 0.70
+```
+
+Results may vary if the indexed data, embedding model, or retrieval configuration changes.
 
 ## Current Limitations
 
