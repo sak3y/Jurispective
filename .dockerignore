@@ -9,6 +9,4 @@ chroma_db
 
 .git
 
-tests
-
 *.ipynb
