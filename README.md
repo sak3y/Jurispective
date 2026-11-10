@@ -7,7 +7,7 @@ Instead of relying on the knowledge LLM's obtained during training, the applicat
 ## 🎥 Demo
 
 
-https://github.com/user-attachments/assets/694e8476-e378-496b-b012-c6b4289b630a
+https://github.com/user-attachments/assets/167a3588-deb3-420f-b6d7-8f4026de16dd
 
 
 ## Tech Stack
