@@ -1,4 +1,4 @@
-# Statyra
+# Jurispective
 
 A Retrieval-Augmented Generation (RAG) application that answers questions about UK criminal law using legislation from [legislation.gov.uk](https://www.legislation.gov.uk/).
 
@@ -7,7 +7,7 @@ Instead of relying on the knowledge LLM's obtained during training, the applicat
 ## 🎥 Demo
 
 
-https://github.com/user-attachments/assets/167a3588-deb3-420f-b6d7-8f4026de16dd
+https://github.com/user-attachments/assets/7c4b2fb8-870e-4891-ac76-0c43e5ec127c
 
 
 ## Tech Stack
